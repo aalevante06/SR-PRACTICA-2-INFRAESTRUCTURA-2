@@ -99,6 +99,10 @@ El router `ISP-2174` interconecta la WAN del FortiGate con la WAN del router Cis
 - `Fa0/0` configurada como `ip nat outside`
 - PAT mediante la dirección obtenida en `Fa0/0`
 
+![Interfaces del ISP](evidencias/02-isp-interfaces.png)
+
+![Tabla de rutas del ISP](evidencias/03-isp-rutas.png)
+
 ### 5.2 VLAN 10 y trunk
 
 El usuario pertenece a la VLAN 10.
@@ -106,6 +110,10 @@ El usuario pertenece a la VLAN 10.
 - `Gi0/0`: trunk 802.1Q hacia `port2` del FortiGate.
 - VLAN permitida en el trunk: `10`.
 - `Gi0/1`: puerto access VLAN 10 hacia `PC-USER-2174`.
+
+![VLAN 10 en el switch](evidencias/07-switch-vlan10.png)
+
+![Trunk 802.1Q](evidencias/08-switch-trunk.png)
 
 ### 5.3 FortiGate — FG-T2-2174
 
@@ -133,6 +141,10 @@ El FortiGate funciona como gateway y firewall de la red de usuarios.
 - Acción: `ACCEPT`
 - NAT habilitado
 
+![Interfaces del FortiGate](evidencias/10-fortigate-interfaces.png)
+
+![Política USER-TO-INTERNET](evidencias/11-fortigate-policy-internet.png)
+
 ### 5.4 Router Cisco — R-CISCO-2174
 
 El router Cisco representa el segundo extremo de la VPN y el gateway de la red del servidor.
@@ -148,6 +160,10 @@ El router Cisco representa el segundo extremo de la VPN y el gateway de la red d
 - `Fa1/1`: `10.21.74.129/28`
 - `ip nat inside`
 
+![Interfaces de R-CISCO-2174](evidencias/04-cisco-interfaces.png)
+
+![Tabla de rutas de R-CISCO-2174](evidencias/05-cisco-rutas.png)
+
 **NAT exemption**
 
 El tráfico entre las redes privadas del VPN no se traduce:
@@ -157,6 +173,8 @@ El tráfico entre las redes privadas del VPN no se traduce:
 ```
 
 El resto del tráfico de la LAN del servidor puede utilizar PAT a través de `Fa1/0`.
+
+![Exención NAT para tráfico VPN](evidencias/06-cisco-nat-exemption.png)
 
 ### 5.5 VPN IPsec Site-to-Site
 
@@ -187,6 +205,8 @@ El túnel conecta:
 
 > **Seguridad:** la PSK real no se publica en este repositorio.
 
+> **Nota de seguridad:** IKEv1, DES y SHA1 se mantienen únicamente por compatibilidad con este laboratorio. No deben tomarse como parámetros recomendados para un despliegue de producción moderno.
+
 ### 5.6 Usuario
 
 `PC-USER-2174` obtiene su configuración mediante DHCP:
@@ -194,6 +214,8 @@ El túnel conecta:
 - IP observada: `10.21.74.10/25`
 - Gateway: `10.21.74.1`
 - DNS: `8.8.8.8` y `1.1.1.1`
+
+![DHCP del usuario](evidencias/09-pc-user-dhcp.png)
 
 ### 5.7 Servidor HTTPS
 
@@ -212,7 +234,7 @@ El servidor Ubuntu utiliza:
 
 En la GUI de FortiGate, `VPN-FG-CISCO` aparece con estado **Up**.
 
-Evidencia: [`12-fortigate-vpn-active.png`](evidencias/12-fortigate-vpn-active.png)
+![VPN activa en FortiGate](evidencias/12-fortigate-vpn-active.png)
 
 ### 6.2 IKE activo en Cisco
 
@@ -231,6 +253,8 @@ ACTIVE
 
 Esto confirma que la negociación IKE está establecida.
 
+![IKE activo en Cisco](evidencias/13-cisco-isakmp-active.png)
+
 ### 6.3 Tráfico IPsec cifrado
 
 El comando:
@@ -246,7 +270,7 @@ muestra tráfico real atravesando el túnel, incluyendo contadores de:
 - `decaps`
 - `decrypt`
 
-Evidencia: [`14-cisco-ipsec-sa.png`](evidencias/14-cisco-ipsec-sa.png)
+![SA IPsec y tráfico cifrado](evidencias/14-cisco-ipsec-sa.png)
 
 ### 6.4 ICMP con VPN activa
 
@@ -262,7 +286,7 @@ Resultado observado:
 4 packets transmitted, 4 received, 0% packet loss
 ```
 
-Evidencia: [`15-vpn-on-ping.png`](evidencias/15-vpn-on-ping.png)
+![Ping con VPN activa](evidencias/15-vpn-on-ping.png)
 
 ### 6.5 HTTPS a través de la VPN
 
@@ -279,7 +303,7 @@ HTTP/1.1 200 OK
 Server: Apache/2.4.66 (Ubuntu)
 ```
 
-Evidencia: [`16-vpn-on-https.png`](evidencias/16-vpn-on-https.png)
+![HTTPS con VPN activa](evidencias/16-vpn-on-https.png)
 
 ### 6.6 Demostración de dependencia del túnel
 
@@ -291,7 +315,7 @@ Con el túnel deshabilitado:
 - Se obtiene `100% packet loss`.
 - La conexión HTTPS al puerto 443 falla.
 
-Evidencia: [`17-vpn-off-sin-acceso.png`](evidencias/17-vpn-off-sin-acceso.png)
+![Sin acceso con VPN deshabilitada](evidencias/17-vpn-off-sin-acceso.png)
 
 ### 6.7 Restauración
 
@@ -300,7 +324,7 @@ Después de habilitar nuevamente la VPN:
 - La conectividad hacia `10.21.74.130` se restaura.
 - HTTPS vuelve a responder correctamente.
 
-Evidencia: [`18-vpn-restaurado.png`](evidencias/18-vpn-restaurado.png)
+![Servicio restaurado](evidencias/18-vpn-restaurado.png)
 
 La secuencia completa de validación está documentada en [`docs/validacion.md`](docs/validacion.md).
 
